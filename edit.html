@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Edit Parent</title>
+  <style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      background: #f4f7f8;
+    }
+
+    .form-wrapper {
+      max-width: 500px;
+      margin: 50px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-wrapper">
+    <h2>Edit Parent</h2>
+
+    <div class="form-group">
+      <label for="parentIdInput">Parent ID:</label>
+      <input type="text" id="parentIdInput" />
+    </div>
+    <button onclick="loadParent()">Load Parent</button>
+
+    <form id="editForm" style="display:none; margin-top:20px;">
+      <div class="form-group">
+        <label>Student Name:</label>
+        <input type="text" id="studentname" required />
+      </div>
+      <div class="form-group">
+        <label>Progress:</label>
+        <input type="text" id="progress" required />
+      </div>
+      <div class="form-group">
+        <label>Parent Name:</label>
+        <input type="text" id="parentname" required />
+      </div>
+      <div class="form-group">
+        <label>Email:</label>
+        <input type="email" id="email" required />
+      </div>
+      <div class="form-group">
+        <label>Faculty ID:</label>
+        <input type="text" id="facultyid" required />
+      </div>
+      <button type="submit">Update</button>
+    </form>
+  </div>
+
+  <script>
+    function loadParent() {
+      const parentId = document.getElementById('parentIdInput').value;
+      fetch("http://localhost:5000/viewallparents")
+        .then(res => res.json())
+        .then(data => {
+          const parent = data.find(p => p.parentid == parentId);
+          if (!parent) return alert("Parent not found!");
+
+          document.getElementById('studentname').value = parent.studentname;
+          document.getElementById('progress').value = parent.studentprogress;
+          document.getElementById('parentname').value = parent.parentname;
+          document.getElementById('email').value = parent.parentemail;
+          document.getElementById('facultyid').value = parent.facultyid;
+
+          document.getElementById('editForm').style.display = "block";
+        });
+    }
+
+    document.getElementById('editForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const parentId = document.getElementById('parentIdInput').value;
+
+      fetch(`http://localhost:5000/edit_parent/${parentId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          studentname: document.getElementById('studentname').value,
+          progress: document.getElementById('progress').value,
+          parentname: document.getElementById('parentname').value,
+          email: document.getElementById('email').value,
+          facultyid: document.getElementById('facultyid').value
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+  alert(data.message || "Update complete.");
+  window.location.href = "admin.html"; // Redirect to admin page
+});
+
+    });
+  </script>
+
+</body>
+</html>
